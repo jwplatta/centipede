@@ -1,3 +1,4 @@
+from .SampleEnv import SampleEnv
 from .constants import (
   ENV_SAMPLES_FILENAME,
   STATE_MAP_FILENAME,
