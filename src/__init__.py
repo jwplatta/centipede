@@ -1,3 +1,4 @@
+from .StateMap import StateMap
 from .KMeansFindK import KMeansFindK
 from .KMeansFindKPlot import KMeansFindKPlot
 from .SampleEnv import SampleEnv
