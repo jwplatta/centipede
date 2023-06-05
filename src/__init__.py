@@ -1,3 +1,5 @@
+from .KMeansFindK import KMeansFindK
+from .KMeansFindKPlot import KMeansFindKPlot
 from .SampleEnv import SampleEnv
 from .constants import (
   ENV_SAMPLES_FILENAME,
