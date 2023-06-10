@@ -3,7 +3,7 @@ from tqdm import tqdm
 import time
 import pickle
 import os
-from scipy.sparse import csr_matrix
+# from scipy.sparse import csr_matrix
 import pandas as pd
 
 
@@ -16,7 +16,16 @@ class QLearner:
         with open(filepath, 'rb') as file:
             state_dict = pickle.load(file)
 
-        ql = QLearner(None, None, None, None, env, None, state_dict=state_dict, state_map=state_map)
+        ql = QLearner(
+            None,
+            None,
+            None,
+            None,
+            env,
+            None,
+            state_dict=state_dict,
+            state_map=state_map
+        )
 
         return ql
 
@@ -77,7 +86,11 @@ class QLearner:
             prev_qtable = np.array([])
             self.start_exploit_episode = None
 
-            for episode in tqdm(range(self.start_episode, self.min_episodes), ncols=100, desc="Run {0}/{1}".format(run, self.n_runs)):
+            for episode in tqdm(
+                range(self.start_episode, self.min_episodes),
+                ncols=100,
+                desc="Run {0}/{1}".format(run, self.n_runs)
+            ):
                 state = self.env.reset(seed=self.seed)[0]
 
                 if self.state_map:
@@ -89,18 +102,25 @@ class QLearner:
 
                 while not done:
                     action, epsilon = self.__pick_action(
-                        action_space=self.env.action_space, state=state, qtable=self.qtable, episode=episode
+                        action_space=self.env.action_space,
+                        state=state,
+                        qtable=self.qtable,
+                        episode=episode
                     )
 
-                    if epsilon == 0.0 and self.start_exploit_episode == None:
+                    if epsilon == 0.0 and not(self.start_exploit_episode):
                         self.start_exploit_episode = episode
 
                     # Log all states and actions
                     # self.all_states.append(state)
                     # self.all_actions.append(action)
 
-                    # Take the action (a) and observe the outcome state(s') and reward (r)
-                    observation, reward, terminated, truncated, info = self.env.step(action)
+                    # Take the action (a) and observe the outcome
+                    # state(s') and reward (r)
+                    observation, reward, terminated, truncated, _ = self.env.step(
+                        action
+                    )
+
 
                     if self.state_map:
                         new_state = self.state_map.predict(observation)
@@ -133,7 +153,8 @@ class QLearner:
 
                     self.transition_counts[state][action][new_state]['count'] += 1
                     self.transition_counts[state][action][new_state]['terminal'] = done
-                    self.transition_counts[state][action][new_state]['total_reward'] += reward
+                    self.transition_counts[state][action] \
+                        [new_state]['total_reward'] += reward
 
                     # NOTE: update Q table and store update
                     q_update, delta = self.__update(state, action, reward, new_state)
@@ -161,8 +182,12 @@ class QLearner:
                     self.qtable_deltas[episode, run] = qtable_delta
 
                 # if (episode > self.min_episodes):
-                if (qtable_delta < self.qtable_threshold and episode > self.min_episodes):
-                    print('Converged on episode {0} - Q-table delta {1} - last epsilon {2}'.format(episode, qtable_delta, epsilon))
+                if (qtable_delta < self.qtable_threshold \
+                    and episode > self.min_episodes):
+                    print(
+                        'Converged episode {0} - Q-table delta {1} - last epsilon {2}' \
+                            .format(episode, qtable_delta, epsilon)
+                    )
                     break
                 else:
                     prev_qtable = self.qtable.copy()
@@ -176,10 +201,13 @@ class QLearner:
         # self.qtable = self.qtables.mean(axis=0)
         # qtable_mean = qtables.mean(axis=0)
         # rewards = qtable_mean.max(axis=1)
-        # self.best_actions = np.argmax(self.qtable, axis=1).reshape(self.map_size, self.map_size)
-        # self.qtable_val_max = self.qtable.max(axis=1).reshape(self.map_size, self.map_size)
+        # self.best_actions = np.argmax(self.qtable, axis=1) \
+        #   .reshape(self.map_size, self.map_size)
+        # self.qtable_val_max = self.qtable.max(axis=1) \
+        #   .reshape(self.map_size, self.map_size)
 
-        return self.rewards, self.steps, self.qtables, self.all_states, self.all_actions, self.transition_counts
+        return self.rewards, self.steps, self.qtables, self.all_states, \
+            self.all_actions, self.transition_counts
 
 
     def __update(self, state, action, reward, new_state):

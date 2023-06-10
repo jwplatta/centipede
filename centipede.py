@@ -131,7 +131,8 @@ if __name__ == "__main__":
         results_df.to_csv(results_filename, index=False, header=True)
 
         print(
-            f"Score: {np.mean(scores)}, Steps: {np.mean(steps)}, Time: {np.mean(e_time)}"
+            f"Score: {np.mean(scores)}," + \
+                " Steps: {np.mean(steps)}, Time: {np.mean(e_time)}"
         )
     elif args.mode == "train":
         state_map = StateMap.load(args.state_map_filename)

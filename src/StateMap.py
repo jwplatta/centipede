@@ -55,13 +55,15 @@ class StateMap:
         simplefilter(action='ignore', category=FutureWarning)
 
         state_idx = self.get_index(tuple(observation))
-        if state_idx != None:
+        if state_idx is not None:
             return state_idx
 
         if not(self.neighbor_estimator):
             self.reset_estimator()
 
-        state_idx = self.neighbor_estimator.predict(np.array(observation).reshape(1, -1))
+        state_idx = self.neighbor_estimator.predict(
+            np.array(observation).reshape(1, -1)
+        )
 
         self.states_to_index[tuple(observation)] = state_idx[0]
 

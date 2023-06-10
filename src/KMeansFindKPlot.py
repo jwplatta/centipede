@@ -11,7 +11,15 @@ class KMeansFindKPlot():
         self.metric_scores = []
 
 
-    def plot(self, axs=np.array([]), figsize=(20,4), title=None, ymin=None, ymax=None, title_desc=None):
+    def plot(
+        self,
+        axs=np.array([]),
+        figsize=(20,4),
+        title=None,
+        ymin=None,
+        ymax=None,
+        title_desc=None
+    ):
         if axs.any():
             fig = None
         else:
