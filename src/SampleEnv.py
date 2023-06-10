@@ -2,15 +2,21 @@ import gymnasium as gym
 from tqdm import tqdm
 import numpy as np
 import pandas as pd
-from .constants import ENV_SAMPLES_FILENAME, GYM_ENV_NAME, FRAME_SKIP, RENDER_MODE, REPEAT_ACTION_PROBABILITY
+from .constants import (
+  DEFAULT_ENV_SAMPLES_FILENAME,
+  GYM_ENV_NAME,
+  FRAME_SKIP,
+  DEFAULT_RENDER_MODE,
+  REPEAT_ACTION_PROBABILITY
+)
 
 class SampleEnv:
   @staticmethod
-  def run(n_episodes=100):
+  def run(n_episodes=100, filename=DEFAULT_ENV_SAMPLES_FILENAME):
       env = gym.make(
         GYM_ENV_NAME,
         frameskip=FRAME_SKIP,
-        render_mode=None,
+        render_mode=DEFAULT_RENDER_MODE,
         repeat_action_probability=REPEAT_ACTION_PROBABILITY
       )
       samples = []
@@ -40,6 +46,6 @@ class SampleEnv:
       env.close()
 
       samples_df = pd.DataFrame(samples)
-      samples_df.to_csv(ENV_SAMPLES_FILENAME, index=False)
+      samples_df.to_csv(filename, index=False)
 
-      return ENV_SAMPLES_FILENAME
+      return filename

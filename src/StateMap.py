@@ -11,7 +11,7 @@ import time
 class StateMap:
     @staticmethod
     def build(samples_df, n_clusters=200, filename=None):
-        kmeans = KMeans(n_clusters=n_clusters)
+        kmeans = KMeans(n_clusters=n_clusters, n_init='auto')
         _ = kmeans.fit_predict(samples_df)
 
         state_map = StateMap()
@@ -24,15 +24,10 @@ class StateMap:
 
 
     @staticmethod
-    def load(filepath, sample_size=0):
+    def load(filepath):
         df = pd.read_csv(filepath, sep=",", header=None)
-
-        if sample_size > 0:
-            df = df.sample(sample_size).reset_index(drop=True)
-
         sm = StateMap()
         [sm.add_state(tuple(state[1])) for state in df.iterrows()]
-
         return sm
 
 

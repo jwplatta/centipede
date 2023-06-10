@@ -3,7 +3,13 @@ from sklearn.cluster import KMeans
 import time
 
 class KMeansFindK:
-    def __init__(self, k_range=np.arange(2, 20, 2), init='k-means++', verbose=False, **kwargs):
+    def __init__(
+        self,
+        k_range=np.arange(2, 20, 2),
+        init='k-means++',
+        verbose=False,
+        **kwargs
+    ):
         self.k_range = k_range
         self.init = init
         self.verbose = verbose
@@ -22,7 +28,7 @@ class KMeansFindK:
 
     def run(self, X):
         for n_clusters in self.k_range:
-            kmeans = KMeans(n_clusters=n_clusters, init=self.init)
+            kmeans = KMeans(n_clusters=n_clusters, n_init='auto', init=self.init)
 
             start_time = time.time()
             kmeans.fit(X)
@@ -36,7 +42,8 @@ class KMeansFindK:
             centroids = kmeans.cluster_centers_
             self.cluster_centers.append(centroids)
 
-            # NOTE: calculate the average intra-cluster sum squared errors for each cluster
+            # NOTE: calculate the average intra-cluster
+            # sum squared errors for each cluster
             # avg_wcss = wcss / X.shape[0]
             self.labels.append(kmeans.labels_)
             self.cluster_names.append(np.unique(kmeans.labels_).tolist())
@@ -45,7 +52,9 @@ class KMeansFindK:
             # NOTE: compute BCSS
             bcss = []
             cluster_sizes = {}
-            overall_mean = np.mean(X, axis=0) # NOTE: calculate the overall mean of the data
+
+            # NOTE: calculate the overall mean of the data
+            overall_mean = np.mean(X, axis=0)
             for cluster in range(n_clusters):
                 # STEP: get the number of points in the i-th cluster
                 cluster_size = np.count_nonzero(kmeans.labels_ == cluster, axis=0)
@@ -54,13 +63,17 @@ class KMeansFindK:
                 # STEP: get the i-th cluster centroid
                 centroid = kmeans.cluster_centers_[cluster]
 
-                # STEP: calculate the distance between the i-th cluster centroid and the overall mean
+                # STEP: calculate the distance between the i-th cluster centroid
+                # and the overall mean
                 dist = np.linalg.norm(centroid - overall_mean)
 
-                # STEP: add the BCSS contribution from the i-th cluster to the total BCSS
+                # STEP: add the BCSS contribution from the i-th cluster
+                # to the total BCSS
                 bcss.append(cluster_size * (dist ** 2))
 
-            self.cluster_size_stds.append(np.std([c_size for _, c_size in cluster_sizes.items()]))
+            self.cluster_size_stds.append(
+                np.std([c_size for _, c_size in cluster_sizes.items()])
+            )
             self.cluster_sizes.append(cluster_sizes)
             self.bcss.append(np.sum(bcss))
 
@@ -77,8 +90,11 @@ class KMeansFindK:
             if self.verbose:
                 print("\n------------\n{0}".format(kmeans))
                 print(
-                    'n_clusters: {0} / avg inter cluster dist: {1} / fit_time: {2}'.format(
-                        n_clusters, self.avg_inter_cluster_distances[-1], fit_time
+                    'n_clusters: {0} / avg inter cluster dist: {1} / fit_time: {2}' \
+                    .format(
+                        n_clusters,
+                        self.avg_inter_cluster_distances[-1],
+                        fit_time
                     )
                 )
 
