@@ -80,7 +80,6 @@ class QLearner:
 
 
     def fit(self):
-        # NOTE: Run several times to account for stochasticity
         for run in range(self.start_run, self.n_runs):
             self.__reset_qtable()
             prev_qtable = np.array([])
@@ -108,19 +107,14 @@ class QLearner:
                         episode=episode
                     )
 
+                    # NOTE: saves the episode where exploitation begins
                     if epsilon == 0.0 and not(self.start_exploit_episode):
                         self.start_exploit_episode = episode
 
-                    # Log all states and actions
-                    # self.all_states.append(state)
-                    # self.all_actions.append(action)
-
-                    # Take the action (a) and observe the outcome
-                    # state(s') and reward (r)
                     observation, reward, terminated, truncated, _ = self.env.step(
                         action
                     )
-
+                    done = terminated or truncated
 
                     if self.state_map:
                         new_state = self.state_map.predict(observation)
@@ -132,8 +126,6 @@ class QLearner:
                         for next_state_tuple in self.reward_model[state][action]:
                             if next_state_tuple[1] == new_state:
                                 reward = next_state_tuple[2]
-
-                    done = terminated or truncated
 
                     # NOTE: tracking state transitions for transition model
                     if state not in self.transition_counts:
@@ -149,7 +141,6 @@ class QLearner:
                         self.transition_counts[state][action][new_state] = {
                           'count': 0, 'terminal': False, 'total_reward': 0
                         }
-
 
                     self.transition_counts[state][action][new_state]['count'] += 1
                     self.transition_counts[state][action][new_state]['terminal'] = done
@@ -174,14 +165,19 @@ class QLearner:
                 if self.progress_file and (episode % 1000) == 0:
                     self.save_progress()
 
-                # # NOTE: check for convergence
+                # NOTE: check for convergence
                 if not(prev_qtable.any()):
                     qtable_delta = self.qtable_threshold * 1.1
                 else:
                     qtable_delta = np.max(np.abs(prev_qtable - self.qtable))
                     self.qtable_deltas[episode, run] = qtable_delta
 
-                # if (episode > self.min_episodes):
+                # print(
+                #     'Episode {0} - Q-table delta {1} - last epsilon {2}'.format(
+                #         episode, qtable_delta, epsilon
+                #     )
+                # )
+
                 if (qtable_delta < self.qtable_threshold \
                     and episode > self.min_episodes):
                     print(
@@ -194,17 +190,7 @@ class QLearner:
 
             self.qtables[run, :, :] = self.qtable.copy()
             self.start_run += 1
-
-            # # NOTE: reset for next run
             self.start_episode = 0
-
-        # self.qtable = self.qtables.mean(axis=0)
-        # qtable_mean = qtables.mean(axis=0)
-        # rewards = qtable_mean.max(axis=1)
-        # self.best_actions = np.argmax(self.qtable, axis=1) \
-        #   .reshape(self.map_size, self.map_size)
-        # self.qtable_val_max = self.qtable.max(axis=1) \
-        #   .reshape(self.map_size, self.map_size)
 
         return self.rewards, self.steps, self.qtables, self.all_states, \
             self.all_actions, self.transition_counts
@@ -224,13 +210,14 @@ class QLearner:
         """
         explore_exploit_tradeoff = self.rng.uniform(0, 1)
 
-        # NOTE: Exploration
+
         if self.epsilon_decay:
             epsilon = self.epsilon_decay.get(episode)
         else:
             epsilon = self.epsilon
 
         if explore_exploit_tradeoff < epsilon:
+            # NOTE: Explore
             action = action_space.sample()
         else:
             # NOTE: Exploit
@@ -297,7 +284,6 @@ class QLearner:
         state_dict['transition_counts'] = self.transition_counts # json.dumps()
         state_dict['qtable_threshold'] = self.qtable_threshold
         state_dict['min_episodes'] = self.min_episodes
-
         return state_dict
 
 
