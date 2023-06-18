@@ -10,17 +10,22 @@ import time
 
 class StateMap:
     @staticmethod
-    def build(samples_df, n_clusters=200, filename=None):
-        kmeans = KMeans(n_clusters=n_clusters, n_init='auto')
-        _ = kmeans.fit_predict(samples_df)
+    def build(samples_df, n_clusters=0, size=0):
+        if size > 0:
+            states = samples_df.sample(size).reset_index(drop=True).to_numpy()
+        elif n_clusters > 0:
+            kmeans = KMeans(n_clusters=n_clusters, n_init='auto')
+            _ = kmeans.fit_predict(samples_df)
+            states = kmeans.cluster_centers_
+            samples_df['cluster'] = kmeans.labels_
+        else:
+            states = samples_df.to_numpy()
 
         state_map = StateMap()
-        for cluster_center in kmeans.cluster_centers_:
-            state_map.add_state(tuple(cluster_center))
+        for state in states:
+            state_map.add_state(tuple(state))
 
-        state_map.save(filename=filename)
-
-        return state_map
+        return state_map, samples_df
 
 
     @staticmethod
