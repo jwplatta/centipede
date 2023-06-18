@@ -1,9 +1,8 @@
 import numpy as np
 import time
 
-
 class CentipedeAgent:
-    def __init__(self, env, state_map, qtable=np.array([])):
+    def __init__(self, env, state_map=None, qtable=np.array([])):
         """
         Initialize the agent
         :param env: The environment to run the agent on
