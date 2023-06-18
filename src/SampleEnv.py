@@ -1,28 +1,15 @@
-import gymnasium as gym
 from tqdm import tqdm
 import numpy as np
 import pandas as pd
-from .constants import (
-  DEFAULT_ENV_SAMPLES_FILENAME,
-  GYM_ENV_NAME,
-  FRAME_SKIP,
-  DEFAULT_RENDER_MODE,
-  REPEAT_ACTION_PROBABILITY
-)
+import pickle
 
 class SampleEnv:
-  @staticmethod
-  def run(n_episodes=100, filename=DEFAULT_ENV_SAMPLES_FILENAME):
-      env = gym.make(
-        GYM_ENV_NAME,
-        frameskip=FRAME_SKIP,
-        render_mode=DEFAULT_RENDER_MODE,
-        repeat_action_probability=REPEAT_ACTION_PROBABILITY
-      )
-      samples = []
-      episode_steps = []
+    @staticmethod
+    def run(env, n_episodes=100):
+        samples = []
+        episode_steps = []
 
-      for _ in tqdm(range(n_episodes), ncols=100):
+        for _ in tqdm(range(n_episodes), ncols=100):
           _ = env.reset()
           done = False
           steps = 0
@@ -42,10 +29,32 @@ class SampleEnv:
 
           episode_steps.append(steps)
 
-      episode_steps = np.array(episode_steps)
-      env.close()
+        episode_steps = np.array(episode_steps)
+        env.close()
 
-      samples_df = pd.DataFrame(samples)
-      samples_df.to_csv(filename, index=False)
+        samples_df = pd.DataFrame(samples)
+        return samples_df, episode_steps
 
-      return filename
+
+    @staticmethod
+    def record_states(env, state_map, target_state, max_sample_count=3):
+        sample_count = 0
+        while sample_count < max_sample_count:
+            _ = env.reset()
+            done = False
+
+            while not done:
+                action = env.action_space.sample()
+                observation, _, terminated, truncated, _ = env.step(action)
+                state = state_map.predict(observation)
+                done = terminated or truncated
+
+                if state == target_state:
+                    filepath = "state_{}_{}.pkl".format(state, sample_count)
+
+                    with open(filepath, 'wb') as f:
+                        pickle.dump(env.render(), f)
+                        sample_count += 1
+
+
+        return sample_count
