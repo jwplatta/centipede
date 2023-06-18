@@ -89,6 +89,9 @@ scatter = axs[1].scatter(
     alpha=0.6
 )
 
+axs[1].set_xlabel("1st principal component")
+axs[1].set_ylabel("2nd principal component")
+
 handles, labels = scatter.legend_elements(
     prop='colors',
     alpha=0.6,
