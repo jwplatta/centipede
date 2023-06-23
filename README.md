@@ -2,7 +2,7 @@
 
 ## Summary
 
-TODO
+Repo contains code for an example of generalizing a large state space (Centipede). The generalization is built with using k-means clustering and k-nearest neighbors. The agent is trained using Q-learning. A more detailed description of the approach can be found in the [here]([report.pdf](https://jwplatta.github.io/machine-learning/reinforcement-learning/2023/06/19/generalizing-centipede-game-states-for-reinforcement-learning.html)).
 
 ## Setup
 
@@ -15,26 +15,26 @@ $ pip install -r requirements.txt
 ## Example Usage
 
 Sample the Centipede environment for 100 episodes:
-```
+```sh
 python centipede.py --mode sample --episodes 100 --samples_filename "samples.csv"
 ```
 
 Find the optimal number of clusters:
-```
+```sh
 python centipede.py --mode findk --k_range "10,100,10" --samples_filename "samples.csv"
 ```
 
 Build the state map:
-```
+```sh
 python centipede.py --mode build --clusters 20 --samples_filename "samples.csv" --state_map_filename "state_map.csv"
 ```
 
 Train for 5 runs and 100 episodes per run:
-```
+```sh
 python centipede.py --mode train --episodes 100 --runs 5 --state_map_filename "state_map.csv" --qtable_filename "qtable.csv"
 ```
 
 Run the trained agent for 10 episodes using the Q-table:
-```
-python centipede.py --mode run --agent_type policy --episodes 10
+```sh
+python centipede.py --mode run --agent_type policy --episodes 10 --qtable_filename "qtable.csv"
 ```
