@@ -2,7 +2,7 @@
 
 ## Summary
 
-Repo contains code for an example of generalizing a large state space (Centipede). The generalization is built using supervised (k-nearest neighbors) and unsupervised (k-means clustering) learning. The agent is trained using Q-learning. A more detailed description of the approach can be found [here]([report.pdf](https://jwplatta.github.io/machine-learning/reinforcement-learning/2023/06/19/generalizing-centipede-game-states-for-reinforcement-learning.html)).
+Repo contains code for an example of generalizing a large state space (Centipede). The generalization is built using supervised (k-nearest neighbors) and unsupervised (k-means clustering) learning. The agent is trained using Q-learning. A more detailed description of the approach can be found in the [here](https://jwplatta.github.io/machine-learning/reinforcement-learning/2023/06/19/generalizing-centipede-game-states-for-reinforcement-learning.html).
 
 ## Setup
 
